@@ -65,35 +65,39 @@ def convert_mth_strings ( mth_string ):
 html = urllib2.urlopen(url)
 soup = BeautifulSoup(html, 'lxml')
 # find all entries with the required class
-block = soup.find('div', attrs = {'id':'L3_MainContentPlaceholder'}).ul
-links = block.find_all('a')
-for link in links:
-    if '.csv' in link['href']:
-        url = 'https://www.wigan.gov.uk' + link['href']
-        csvMth = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[:3]
-        csvYr = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[-4:]
-        csvMth = convert_mth_strings(csvMth.upper())
-        filename = entity_id + "_" + csvYr + "_" + csvMth
-        todays_date = str(datetime.now())
-        file_url = url.strip()
-        if not validateFilename(filename):
-            print filename, "*Error: Invalid filename*"
-            print file_url
-            errors += 1
-            continue
-        if not validateURL(file_url):
-            print filename, "*Error: Invalid URL*"
-            print file_url
-            errors += 1
-            continue
-        if not validateFiletype(file_url):
-            print filename, "*Error: Invalid filetype*"
-            print file_url
-            errors += 1
-            continue
-        scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
-        print filename
+block = soup.find('div', attrs = {'id':'L3_MainContentPlaceholder'}).find_all_next('ul')
+for b in block:
+    links = b.find_all('a')
+    for link in links:
+        if 'Spend' in link.text:
+            if '.csv' in link['href']:
+                url = 'https://www.wigan.gov.uk' + link['href']
+                csvMth = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[:3]
+                csvYr = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[-4:]
+                csvMth = convert_mth_strings(csvMth.upper())
+                if len(link.text.split('-')) > 2:
+                    filename = 'Q'+entity_id + "_" + csvYr + "_" + csvMth
+                else:
+                    filename = entity_id + "_" + csvYr + "_" + csvMth
+                todays_date = str(datetime.now())
+                file_url = url.strip()
+                if not validateFilename(filename):
+                    print filename, "*Error: Invalid filename*"
+                    print file_url
+                    errors += 1
+                    continue
+                if not validateURL(file_url):
+                    print filename, "*Error: Invalid URL*"
+                    print file_url
+                    errors += 1
+                    continue
+                if not validateFiletype(file_url):
+                    print filename, "*Error: Invalid filetype*"
+                    print file_url
+                    errors += 1
+                    continue
+                scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
+                print filename
 
 if errors > 0:
    raise Exception("%d errors occurred during scrape." % errors)
-
