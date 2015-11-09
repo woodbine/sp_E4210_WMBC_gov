@@ -5,7 +5,7 @@
 import os
 import re
 import scraperwiki
-import urllib3
+import urllib2
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
