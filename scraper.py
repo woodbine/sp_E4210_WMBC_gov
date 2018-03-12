@@ -107,12 +107,12 @@ for b in block:
         if 'Spend' in link.text:
             if '.csv' in link['href']:
                 url = 'https://www.wigan.gov.uk' + link['href']
-                csvMth = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[:3]
-                csvYr = link.text.strip().split('-')[-1].strip().split('(')[0].strip()[-4:]
+                csvMth = link.text.strip().replace('2-18', '2018').split('-')[-1].strip().split('(')[0].strip()[:3]
+                csvYr = link.text.strip().replace('2-18', '2018').split('-')[-1].strip().split('(')[0].strip()[-4:]
                 csvMth = convert_mth_strings(csvMth.upper())
                 todays_date = str(datetime.now())
                 if len(link.text.split('-')) > 2:
-                    tys = pat.findall(link.text)
+                    tys = pat.findall(link.text.replace('2-18', '2018'))
                     if len(tys) > 1:
                         if int(tys[0]) < int(tys[1]):
                             csvMth = 'Y1'
